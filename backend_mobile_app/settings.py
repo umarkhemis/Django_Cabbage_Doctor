@@ -138,6 +138,8 @@ USE_I18N = True
 USE_TZ = True
 
 
+# STATIC_URL = "static/"
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
@@ -150,8 +152,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = "static/"
-# STATIC_URL = '/static/'
+
+STATIC_URL = '/static/'
 
 # Whitenoise
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
