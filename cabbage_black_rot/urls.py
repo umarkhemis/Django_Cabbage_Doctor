@@ -10,5 +10,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('predict/', views.predict),
     path('history/', views.get_history),
-    path('ask/', views.ask_bot),
+    # path('ask/', views.ask_bot),
 ]
