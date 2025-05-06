@@ -34,12 +34,8 @@ genai.configure(api_key=api_key)
 
 # Load your trained model
 Model_Path = os.path.join(os.path.dirname(__file__), 'Models', 'fine_tuned_cabbage_black_rot_detector_model.tflite')
-# model = load_model(Model_Path)
-# model = tf.keras.load_model(Model_Path)
-# model = tf.keras.models.load_model('Models/fine_tuned_cabbage_black_rot_detector_model.tflite')
 
 interpreter = tf.lite.Interpreter(model_path=Model_Path)
-# interpreter = tf.lite.Interpreter(model_path="./Models/fine_tuned_cabbage_black_rot_detector_model.tflite")
 interpreter.allocate_tensors()
 
 # Get input/output details
@@ -96,6 +92,104 @@ def predict(request):
     except Exception as e:
         raise ValidationError({"error": str(e)})
 
+# from django.core.exceptions import ValidationError
+# from django.http import JsonResponse
+# from django.shortcuts import render
+# from rest_framework.decorators import api_view, parser_classes
+# from rest_framework.parsers import MultiPartParser, FormParser
+# from rest_framework.response import Response
+# from rest_framework import generics, permissions, status
+# from rest_framework.permissions import AllowAny
+# from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
+# from rest_framework_simplejwt.views import TokenObtainPairView
+# from django.core.files.base import ContentFile
+# import google.generativeai as genai
+# from django.conf import settings
+# from .models import PredictionHistory
+# from .serializers import PredictionHistorySerializer
+# import numpy as np
+# from PIL import Image
+# import io
+# import base64
+# from django.contrib.auth.models import User
+# from dotenv import load_dotenv
+# import os
+# import tflite_runtime.interpreter as tflite  # ✅ Use lightweight interpreter
+
+# load_dotenv()
+
+# api_key = os.getenv('SECRET_API_KEY')
+# genai.configure(api_key=api_key)
+
+# # Load TensorFlow Lite model
+# Model_Path = os.path.join(os.path.dirname(__file__), 'Models', 'fine_tuned_cabbage_black_rot_detector_model.tflite')
+
+# interpreter = tflite.Interpreter(model_path=Model_Path)
+# interpreter.allocate_tensors()
+
+# # Get input/output details
+# input_details = interpreter.get_input_details()
+# output_details = interpreter.get_output_details()
+
+# # Classes for the model
+# class_names = ['Cabage_black_rot', 'healthy', 'not_related_to_cabbage_black_rot']
+
+# # Dummy GenAI insight function (replace with your own implementation)
+
+
+# @api_view(['POST'])
+# def predict(request):
+#     try:
+#         base64_image = request.data.get('image')  # Expecting base64 string
+
+#         if not base64_image:
+#             return Response({'error': 'No image provided'}, status=400)
+
+#         # Decode base64 image
+#         image_data = base64.b64decode(base64_image)
+#         image_file = io.BytesIO(image_data)
+#         image = Image.open(image_file).resize((160, 160)).convert('RGB')
+
+#         # Prepare image array
+#         img_array = np.array(image, dtype=np.float32)
+#         img_array = np.expand_dims(img_array, axis=0)
+
+#         # Run inference
+#         interpreter.set_tensor(input_details[0]['index'], img_array)
+#         interpreter.invoke()
+#         output_data = interpreter.get_tensor(output_details[0]['index'])[0]
+#         index = np.argmax(output_data)
+#         prediction_class = class_names[index]
+#         confidence = float(output_data[index])
+#         insight = generate_insight(prediction_class)
+
+#         # Save image & result to DB
+#         image_content = ContentFile(image_data, name='uploaded.jpg')
+#         entry = PredictionHistory.objects.create(
+#             image=image_content,
+#             prediction_class=prediction_class,
+#             confidence=confidence,
+#             insight=insight
+#         )
+
+#         return Response({
+#             'prediction': prediction_class,
+#             'confidence': confidence,
+#             'insight': insight,
+#             'image_url': request.build_absolute_uri(entry.image.url)
+#         })
+
+#     except Exception as e:
+#         raise ValidationError({"error": str(e)})
+
+
+
+
+
+
+
+
+
 
 
 
@@ -106,87 +200,6 @@ def get_history(request):
     return Response(serializer.data)
 
 
-
-@api_view(['POST'])
-def ask_bot(request):
-    question = request.data.get('question')
-    if not question:
-        return Response({'reply': 'No question received.'}, status=400)
-
-    try:
-        model = genai.GenerativeModel('gemini-pro')
-        response = model.generate_content(question)
-
-        # Safely extract the text
-        if hasattr(response, 'text'):
-            answer = response.text.strip()
-        else:
-            answer = 'No text reply from Gemini.'
-
-        return Response({'reply': answer})
-
-    except Exception as e:
-        print(f"Error in ask_bot: {e}")  # See this in logs
-        return Response({'reply': f'Error: {str(e)}'}, status=500)
-
-
-
-
-
-
-
-
-
-
-
-# @api_view(['POST'])
-# def ask_bot(request):
-#     question = request.data.get('question')
-#     if not question:
-#         return Response({'reply': 'No question received.'}, status=400)
-
-#     try:
-#         # Use Gemini Pro (text-only)
-#         model = genai.GenerativeModel('gemini-pro')
-#         response = model.generate_content(question)
-
-#         answer = response.text.strip() if hasattr(response, 'text') else 'No response from Gemini.'
-#         return Response({'reply': answer})
-
-#     except Exception as e:
-#         return Response({'reply': f'Error: {str(e)}'}, status=500)
-
-
-
-
-
-# @api_view(['POST'])
-# def ask_bot(request):
-#     question = request.data.get('question')
-#     if not question:
-#         return Response({'reply': 'No question received.'}, status=400)
-
-#     # Use OpenAI or any other chatbot model
-    
-#     client = OpenAI()
-
-#     response = client.chat.completions.create(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role": "user", "content": "question"}
-#         ]
-#     )
-
-#     print(response.choices[0].message.content)
-    
-    
-    # response = openai.ChatCompletion.create(
-    #     model='gpt-3.5-turbo',
-    #     messages=[{"role": "user", "content": question}],
-    #     max_tokens=150
-    # )
-    # reply = response['choices'][0]['message']['content']
-    # return Response({'reply': reply})
 
 
 def generate_insight(pred_class):
@@ -200,9 +213,6 @@ def generate_insight(pred_class):
 
 
 
-# class RegisterView(generics.CreateAPIView):
-#     serializer_class = RegisterSerializer
-#     permission_classes = [AllowAny]
 
 @api_view(['POST'])
 def register(request):
