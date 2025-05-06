@@ -19,12 +19,17 @@ from PIL import Image
 import io
 import base64
 from django.contrib.auth.models import User
+from dotenv import load_dotenv
 # import openai
 # from openai import OpenAI
 import os
 # from .genai_insights import get_disease_insight
 
-genai.configure(api_key='AIzaSyB9IHWHbqggP__-hN9304vrJqTnvTDha3c')
+load_dotenv()
+
+api_key = os.getenv('SECRET_API_KEY')
+
+genai.configure(api_key=api_key)
 
 
 # Load your trained model
